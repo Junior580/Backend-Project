@@ -3,7 +3,7 @@ const app = express();
 const padraoRouter = require("./routes/padrao.routes");
 const connectToDB = require("./src/conect");
 const port = 3000;
-connectToDB(); 
+connectToDB();
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());

@@ -17,9 +17,13 @@ module.exports = {
   },
 
   getPersonByID: async (req, res) => {
-    const id = req.parms.id; ///ajustar o ID
+    const id = req.params.id;
     try {
       const person = await Person.findOne({ id: id });
+      if (!person) {
+        res.status(422).json({ msg: "O usuario não foi encontrado!" });
+        return;
+      }
       res.status(200).json(person);
     } catch (error) {
       res.status(500).json({ error: error });
@@ -30,12 +34,15 @@ module.exports = {
     const { name, salary, approved } = req.body;
     if (!name) {
       res.status(422).json({ msg: "O nome é obrigatório" });
+      return;
     }
     if (!salary) {
       res.status(422).json({ msg: "O salario é obrigatório" });
+      return;
     }
     if (!approved) {
       res.status(422).json({ msg: "O Status é obrigatório" });
+      return;
     }
     const person = {
       id: uuidv4(),
@@ -48,6 +55,42 @@ module.exports = {
       res.status(201).json({ msg: "Pessoa inserida no sistema com sucesso." });
     } catch (error) {
       res.status(500).json({ msg: error });
+    }
+  },
+
+  patchPerson: async (req, res) => {
+    const id = req.params.id;
+    const { name, salary, approved } = req.body;
+    const person = {
+      name,
+      salary,
+      approved,
+    };
+    try {
+      const updatePerson = await Person.updateOne({ id: id }, person);
+      if (updatePerson.matchedCount === 0) {
+        res.status(422).json({ msg: "O usuario não foi encontrado!" });
+        return;
+      }
+      res.status(200).json(person);
+    } catch (error) {
+      res.status(500).json({ error: error });
+    }
+  },
+
+  deletePerson: async (req, res) => {
+    const id = req.params.id;
+    const person = await Person.findOne({ id: id });
+    if (!person) {
+      res.status(422).json({ msg: "O usuario não foi encontrado!" });
+      return;
+    }
+    try {
+      await Person.deleteOne({ id: id });
+      res.status(200).json({msg:"Usuario removido com sucesso!"});
+
+    } catch (error) {
+      res.status(500).json({ error: error });
     }
   },
 };
